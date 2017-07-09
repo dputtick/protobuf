@@ -15,12 +15,28 @@ fn varint_decode(bytes: &[u8]) -> u64 {
 }
 
 fn varint_encode(int: u64) -> Box<[u8]> {
-    Box::new([0b10101100, 0b00000010])
+    let mut res = Vec::new();
+    let bottommask = 0b01111111 as u64; //0000000000000000111111
+    let topmask = !bottommask; // 1111111111111000000
+    let mut temp = int;
+    let mut has_more_bits = true;
+    while has_more_bits {
+        has_more_bits = (temp & topmask) != 0;
+        let lowest_byte = (temp & bottommask) as u8;
+        res.push(set_msb(lowest_byte, has_more_bits));
+        temp = temp >> 7;
+    }
+    res.into_boxed_slice()
+}
+
+fn set_msb(byte: u8, should_set: bool) -> u8 {
+    byte | (should_set as u8) << 7
 }
 
 fn main() {
     let varint: u64 = varint_decode(&[0b10101100, 0b00000010]);
     println!("{:?}", varint);
+    println!("{:?}", varint_encode(300));
 }
 
 #[test]
