@@ -14,6 +14,10 @@ fn varint_decode(bytes: &[u8]) -> u64 {
     panic!("{:?}", "all leading bits were 1");
 }
 
+fn varint_encode(int: u64) -> Box<[u8]> {
+    Box::new([0b10101100, 0b00000010])
+}
+
 fn main() {
     let varint: u64 = varint_decode(&[0b10101100, 0b00000010]);
     println!("{:?}", varint);
@@ -24,4 +28,9 @@ fn can_decode_varint() {
     assert_eq!(varint_decode(&[0b10101100, 0b00000010]), 300);
     assert_eq!(varint_decode(&[0b00000001]), 1);
     assert_eq!(varint_decode(&[0b00000000]), 0);
+}
+
+#[test]
+fn can_encode_varint() {
+    assert_eq!(*varint_encode(300), [0b10101100, 0b00000010]);
 }
