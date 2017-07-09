@@ -1,3 +1,14 @@
+#[derive(Debug)]
+struct IntMessage {
+    a: u64 // tag number = 1
+}
+
+impl IntMessage {
+    fn from_bytes(slice_bytes: &[u8]) -> IntMessage {
+        IntMessage{a: 1}
+    }
+}
+
 fn varint_decode(bytes: &[u8]) -> u64 {
     let mut bytes_iter = bytes.iter();
     let mut retval: u64 = 0;
@@ -12,6 +23,18 @@ fn varint_decode(bytes: &[u8]) -> u64 {
         }
     }
     panic!("{:?}", "all leading bits were 1");
+}
+
+#[derive(Debug, PartialEq)]
+enum WireType {
+    Varint,
+}
+
+fn get_wire_type(varint_key: &[u8]) -> WireType {
+    match (varint_decode(varint_key) as u8) & 0b00000111 {
+        0 => WireType::Varint,
+        _ => panic!(),
+    }
 }
 
 fn varint_encode(int: u64) -> Box<[u8]> {
@@ -34,9 +57,10 @@ fn set_msb(byte: u8, should_set: bool) -> u8 {
 }
 
 fn main() {
-    let varint: u64 = varint_decode(&[0b10101100, 0b00000010]);
-    println!("{:?}", varint);
-    println!("{:?}", varint_encode(300));
+    let intout: u64 = varint_decode(&[0b10101100, 0b00000010]);
+    println!("{:?}", intout);
+    let varint = varint_encode(300);
+    println!("{:?}", IntMessage::from_bytes(&*varint));
 }
 
 #[test]
@@ -59,4 +83,9 @@ fn can_roundtrip() {
     for int in input {
         assert_eq!(varint_decode(&*varint_encode(*int as u64)), *int as u64);
     }
+}
+
+#[test]
+fn can_get_wiretype() {
+    assert_eq!(get_wire_type(&*varint_encode(1 << 3 | 0)), WireType::Varint);
 }
