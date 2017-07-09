@@ -22,4 +22,6 @@ fn main() {
 #[test]
 fn can_decode_varint() {
     assert_eq!(varint_decode(&[0b10101100, 0b00000010]), 300);
+    assert_eq!(varint_decode(&[0b00000001]), 1);
+    assert_eq!(varint_decode(&[0b00000000]), 0);
 }
