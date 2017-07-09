@@ -16,8 +16,8 @@ fn varint_decode(bytes: &[u8]) -> u64 {
 
 fn varint_encode(int: u64) -> Box<[u8]> {
     let mut res = Vec::new();
-    let bottommask = 0b01111111 as u64; //0000000000000000111111
-    let topmask = !bottommask; // 1111111111111000000
+    let bottommask = 0b01111111 as u64;
+    let topmask = !bottommask;
     let mut temp = int;
     let mut has_more_bits = true;
     while has_more_bits {
@@ -49,4 +49,14 @@ fn can_decode_varint() {
 #[test]
 fn can_encode_varint() {
     assert_eq!(*varint_encode(300), [0b10101100, 0b00000010]);
+    assert_eq!(*varint_encode(1), [0b00000001]);
+    assert_eq!(*varint_encode(0), [0b00000000]);
+}
+
+#[test]
+fn can_roundtrip() {
+    let input: &[u64] = &[150, 1500000, 0, 2340239420394];
+    for int in input {
+        assert_eq!(varint_decode(&*varint_encode(*int as u64)), *int as u64);
+    }
 }
