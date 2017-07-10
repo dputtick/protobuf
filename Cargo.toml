@@ -1,5 +1,5 @@
 [package]
-name = "deserialize"
+name = "protobuf"
 version = "0.1.0"
 authors = ["Dan Puttick <dputtick@users.noreply.github.com>"]
 
