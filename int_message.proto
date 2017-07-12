@@ -1,0 +1,5 @@
+package testdata;
+
+message IntMessage {
+  optional int64 a = 1;
+}
